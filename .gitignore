@@ -13,3 +13,13 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Fichiers de sécurité et Keystores
+*.jks
+*.keystore
+
+# Fichiers de configuration Firebase/Google Cloud
+google-services.json
+
+# Ignorer tous les dossiers build (y compris app/build)
+build/
+app/build/
