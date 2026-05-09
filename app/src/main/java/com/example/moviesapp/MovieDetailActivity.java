@@ -1,6 +1,5 @@
 package com.example.moviesapp;
 
-
 import static android.content.ContentValues.TAG;
 import android.content.Context;
 import android.content.Intent;
@@ -38,8 +37,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
-public class MovieDetailActivity extends AppCompatActivity implements
-        OnMapReadyCallback{
+
+public class MovieDetailActivity extends AppCompatActivity implements OnMapReadyCallback {
+
     private SupportMapFragment mapFragment;
     private TextView descriptionTextView;
     private TextView Name;
@@ -50,14 +50,20 @@ public class MovieDetailActivity extends AppCompatActivity implements
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private GoogleMap mMap;
     private List<LatLng> cinemaLocations = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+
+        // 1. Les IDs t9addou bach y-matchiw m3a activity_movie_detail.xml jdid
         descriptionTextView = findViewById(R.id.Details);
-        img = findViewById(R.id.imageView);
-        Name = findViewById(R.id.textViewName);
+        img = findViewById(R.id.imageview);
+        Name = findViewById(R.id.textName);
+        playButton = findViewById(R.id.playButton);
+
         requestQueue = Volley.newRequestQueue(this);
+
         // Retrieve movie ID from Intent extras
         int movieId = getIntent().getIntExtra("movieId", -1);
         if (movieId != -1) {
@@ -65,48 +71,44 @@ public class MovieDetailActivity extends AppCompatActivity implements
         } else {
             descriptionTextView.setText("No movie ID provided");
         }
-        playButton = findViewById(R.id.PlayButton);
+
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 playTrailer();
             }
         });
-        cinemaLocations.add(new LatLng(33.596460, -7.615480)); //Example cinema location
-        mapFragment = (SupportMapFragment)getSupportFragmentManager().
-                findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+
+        cinemaLocations.add(new LatLng(33.596460, -7.615480)); // Example cinema location
+
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
     }
+
     private void fetchMovieDetails(int movieId) {
-        String TMDB_API_KEY = "your api key";
-        String movieDetailsUrl = "https://api.themoviedb.org/3/movie/" + movieId +
-                "?api_key=" + TMDB_API_KEY;
-        String movieVideosUrl = "https://api.themoviedb.org/3/movie/" + movieId +
-                "/videos?api_key=" + TMDB_API_KEY;
-        JsonObjectRequest movieDetailsRequest = new
-                JsonObjectRequest(Request.Method.GET, movieDetailsUrl,
+        // 2. Dernalha la clé dyalek bach tbda tjib les données d'sah
+        String TMDB_API_KEY = "5cb8043a3b7e0c1210dacce4482f075e";
+        String movieDetailsUrl = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" + TMDB_API_KEY;
+        String movieVideosUrl = "https://api.themoviedb.org/3/movie/" + movieId + "/videos?api_key=" + TMDB_API_KEY;
+
+        JsonObjectRequest movieDetailsRequest = new JsonObjectRequest(Request.Method.GET, movieDetailsUrl,
                 null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
-                    // Log the full response for debugging
-                    Log.d(TAG, "Movie Details Response: " +
-                            response.toString());
-                    //Retrieve movie name, description, and image URL from the JSON response
+                    Log.d(TAG, "Movie Details Response: " + response.toString());
+
                     String movieName = response.getString("title");
                     String movieDescription = response.getString("overview");
-                    String imageUrl = "https://image.tmdb.org/t/p/w500" +
-                            response.getString("poster_path");
-                    // Set the movie name in the appropriate TextView
+                    String imageUrl = "https://image.tmdb.org/t/p/w500" + response.getString("poster_path");
+
                     Name.setText(movieName);
-                    // Set the movie description in the appropriate TextView
                     descriptionTextView.setText(movieDescription);
-                    // Load the movie image using Glide or any other image loading library
 
                     Glide.with(MovieDetailActivity.this).load(imageUrl).into(img);
                 } catch (JSONException e) {
-                    // e.printStackTrace();
-                    // Handle specific exceptions if necessary
                     if (e.getMessage().contains("title")) {
                         Log.e(TAG, "Error: Missing 'title' key in response");
                     } else if (e.getMessage().contains("overview")) {
@@ -119,15 +121,12 @@ public class MovieDetailActivity extends AppCompatActivity implements
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                // Log error message for debugging
-                Log.e(TAG, "Error fetching movie details: " +
-                        error.getMessage());
-                // Set error message in the TextView
+                Log.e(TAG, "Error fetching movie details: " + error.getMessage());
                 descriptionTextView.setText("Failed to fetch movie details");
             }
         });
-        JsonObjectRequest movieVideosRequest = new
-                JsonObjectRequest(Request.Method.GET, movieVideosUrl, null, new
+
+        JsonObjectRequest movieVideosRequest = new JsonObjectRequest(Request.Method.GET, movieVideosUrl, null, new
                 Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -138,12 +137,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
                                     JSONObject video = results.getJSONObject(i);
                                     if (video.getString("type").equals("Trailer")) {
                                         trailerKey = video.getString("key");
-                                        // Log the trailer key for debugging
                                         Log.d(TAG, "Trailer Key: " + trailerKey);
-// Now you can use the trailer key as needed
-// For example, you can store it in a member variable and use it later to play the trailer
-                                        // trailerKey =
-                                        video.getString("key");
                                         break; // Assuming you only need first trailer key
                                     }
                                 }
@@ -155,112 +149,82 @@ public class MovieDetailActivity extends AppCompatActivity implements
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                // Log error message for debugging
-                Log.e(TAG, "Error fetching movie videos: " +
-                        error.getMessage());
-                // Show a message that the trailer is not available
+                Log.e(TAG, "Error fetching movie videos: " + error.getMessage());
                 Toast.makeText(MovieDetailActivity.this, "Trailer not available", Toast.LENGTH_SHORT).show();
             }
         });
-// Add both requests to the RequestQueue
+
+        // Add both requests to the RequestQueue
         requestQueue.add(movieDetailsRequest);
         requestQueue.add(movieVideosRequest);
     }
-    private void playTrailer() {
-        // Check if trailerKey is available
-        if (trailerKey != null && !trailerKey.isEmpty()) {
-            // Construct the URL for the trailer
-            String trailerUrl = "https://www.youtube.com/embed/" + trailerKey;
 
-            // Create an intent to start the VideoPlayerActivity
-            Toast.makeText(this, "direction video", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(MovieDetailActivity.this, VideoPlayer.class);
-            intent.putExtra("videoUrl", trailerUrl);
-            startActivity(intent);
+    private void playTrailer() {
+        if (trailerKey != null && !trailerKey.isEmpty()) {
+            // L'Intent lwel kay7awel y7el l'application YouTube directe
+            Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + trailerKey));
+
+            // L'Intent tani kiykhdem ka plan B, kay7el l'vidéo f Google Chrome ila makhdmatch l'appli
+            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + trailerKey));
+
+            try {
+                startActivity(appIntent);
+            } catch (android.content.ActivityNotFoundException ex) {
+                startActivity(webIntent);
+            }
         } else {
-            // Show a message that the trailer is not available
             Toast.makeText(this, "Trailer not available", Toast.LENGTH_SHORT).show();
         }
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        // Check location permission
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            // Enable current location button
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
-            // Move camera to current location
             LatLng cinemaLocation = new LatLng(33.596460, -7.615480);
             addCinemaMarker(cinemaLocation);
             moveToCurrentLocation();
-            // addCinemaMarkers();
         } else {
-            // Request location permission
-            ActivityCompat.requestPermissions(this, new
-                            String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
+
     private void addCinemaMarker(LatLng cinemaLocation) {
-        mMap.addMarker(new MarkerOptions().position(cinemaLocation).title("Cinema")
-                .snippet("Location of the cinema"));
+        mMap.addMarker(new MarkerOptions().position(cinemaLocation).title("Cinema").snippet("Location of the cinema"));
     }
+
     private void moveToCurrentLocation() {
-        // Check if the app has location permission
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            // Get the location manager
-            LocationManager locationManager = (LocationManager)
-                    getSystemService(Context.LOCATION_SERVICE);
-            // Get the last known location
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             Location location = null;
             try {
-                location =
-                        locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             } catch (SecurityException e) {
                 e.printStackTrace();
-                // Handle the SecurityException
-                Toast.makeText(this, "Location permission denied",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // Check if the location is not null
-            if (location != null) {
-                // Create a LatLng object representing the current location
-                LatLng currentLocation = new LatLng(location.getLatitude(),
-                        location.getLongitude());
-                // Move the camera to the current location with a zoom level of 15
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation,
-                        15));
-            } else {
-                // Handle the case where the last known location is null
-                Toast.makeText(this, "Last known location not available",
 
-                        Toast.LENGTH_SHORT).show();
+            if (location != null) {
+                LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15));
+            } else {
+                Toast.makeText(this, "Last known location not available", Toast.LENGTH_SHORT).show();
             }
         } else {
-            // Request location permission if it has not been granted
-            ActivityCompat.requestPermissions(this, new
-                            String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[]
-            permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] ==
-                    PackageManager.PERMISSION_GRANTED) {
-// Permission granted, move camera to current location
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 moveToCurrentLocation();
             } else {
-// Permission denied, show a message or handle accordingly
-                Toast.makeText(this, "Location permission denied",
-                        Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
             }
         }
     }

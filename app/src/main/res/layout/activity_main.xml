@@ -6,34 +6,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#121212"
     tools:context=".MainActivity">
+
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/logo_app"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"/>
 
     <EditText
         android:id="@+id/editTextSearch"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Search"
-        android:textColorHint="@color/colorPrimaryDark"
+        android:layout_height="50dp"
+        android:layout_margin="16dp"
+        android:paddingHorizontal="20dp"
+        android:background="@android:drawable/edit_text"
+        android:backgroundTint="#2C2C2C"
+        android:textColorHint="#888888"
+        android:textColor="#FFFFFF"
+        android:hint="Search for a movie..."
         android:inputType="text"
-        />
-
-    <Button
-        android:id="@+id/buttonSearch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Search"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:background="@color/gray"
-        android:layout_marginTop="10dp"
-        android:layout_marginHorizontal="7dp"
-        android:textSize="20sp"
-        />
+        android:drawableEnd="@android:drawable/ic_menu_search"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp" />
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"/>
 
 </LinearLayout>

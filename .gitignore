@@ -1,3 +1,4 @@
+# Fichiers de configuration locaux (makhasshomch ydiro f Git)
 *.iml
 .gradle
 /local.properties
@@ -7,19 +8,15 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-.DS_Store
+
+# Fichiers compilés
 /build
 /captures
 .externalNativeBuild
 .cxx
-local.properties
-# Fichiers de sécurité et Keystores
-*.jks
-*.keystore
 
-# Fichiers de configuration Firebase/Google Cloud
-google-services.json
+# MacOS
+.DS_Store
 
-# Ignorer tous les dossiers build (y compris app/build)
-build/
-app/build/
+# Fichiers générés par l'OS
+*.swp
